@@ -11,6 +11,7 @@ WORKDIR=$(pwd)
 SCRIPT=""
 INTERACTIVE="-it"
 DOCKER_VOLUMES=""
+PRIVLEGED=""
 
 build_image() {
     docker build -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT}
@@ -26,6 +27,7 @@ help() {
     echo " -n --non-interactive     Run container and exit without interactive shell"
     echo " -w --workdir             Docker Working Directory to Mount, default is ${WORKDIR}"
     echo " -v --volume              Docker Volumes to Mount, e.g. -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
+    echo " -p --privledged          Run docker in privledged mode, allowing access to all devices"
     echo " -h --help                Display this Help Message"
     echo
     echo "Example - Run Interactive Shell In Current Directory:"
@@ -87,6 +89,10 @@ parse_args() {
                 shift # past argument
                 shift # past value
             ;;
+            -p|--privledged)
+                PRIVLEGED=" --privileged"
+                shift
+            ;;
             *)    # unknown option
                 echo "Unknown option: $1"
                 help
@@ -113,4 +119,5 @@ docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     ${DOCKER_VOLUMES} \
     ${INTERACTIVE} \
     ${ENV_FILE} \
+    ${PRIVLEGED} \
     variscite:${DOCKER_IMAGE}
