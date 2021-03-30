@@ -42,6 +42,9 @@ help() {
     echo "Example - Run a yocto build using an example imx8mn-var-som environment with cached downloads and sstate"
     echo "./run.sh -n -w ~/var-fslc-yocto -e imx8mn-var-som-yocto.env -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
     echo  ./run.sh -n -w ~/var-fslc-yocto -e imx8mm-var-dart-yocto.env -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate
+    echo
+    echo "Example - Run a debian build using an example imx8mn-var-som environment:"
+    echo "./run.sh -n -w ~/var-fslc-yocto -e imx8mn-var-som-debian.env"
     exit
 }
 
