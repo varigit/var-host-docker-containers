@@ -20,6 +20,7 @@ help() {
     echo
     echo " optional:"
     echo " -b --build   Build Docker Image"
+    echo " -e --env     Docker Environment File"
     echo " -w --workdir Docker Working Directory to Mount, default is ${WORKDIR}"
     echo " -h --help    display this Help message"
     echo
@@ -41,6 +42,19 @@ parse_args() {
                 if [ "$WORKDIR" = "" ]; then
                     help
                 fi
+                shift # past argument
+                shift # past value
+            ;;
+            -e|--env)
+                ENV_FILE=$2
+                if [ ! -f "${ENV_FILE}" ]; then
+                    if [ ! -f "${DIR_SCRIPT}/env/${ENV_FILE}" ]; then
+                        echo "Error: ${ENV_FILE} Not Found"
+                        echo "Error: ${DIR_SCRIPT}/env/${ENV_FILE} Not Found either"
+                        help
+                    fi
+                fi
+                ENV_FILE="--env-file=${DIR_SCRIPT}/env/${ENV_FILE}"
                 shift # past argument
                 shift # past value
             ;;
@@ -68,4 +82,5 @@ docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     -v ${WORKDIR}:/workdir \
     -v ~/.gitconfig:/home/vari/.gitconfig \
     -it \
+    ${ENV_FILE} \
     variscite:${DOCKER_IMAGE}
