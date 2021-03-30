@@ -12,9 +12,10 @@ SCRIPT=""
 INTERACTIVE="-it"
 DOCKER_VOLUMES=""
 PRIVLEGED=""
+BUILD_CACHE=""
 
 build_image() {
-    docker build -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT}
+    docker build ${BUILD_CACHE} -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT}
 }
 
 help() {
@@ -22,7 +23,8 @@ help() {
     echo "Usage: ${DIR_SCRIPT}/${FILE_SCRIPT} <options>"
     echo
     echo " optional:"
-    echo " -b --build               Build Docker Image"
+    echo " -b --build               Build Docker Image, includes only changes made to Dockerfile"
+    echo " -f --force-build         Build Docker Image with --no-cache, will include latest from Ubuntu"
     echo " -e --env                 Docker Environment File"
     echo " -n --non-interactive     Run container and exit without interactive shell"
     echo " -w --workdir             Docker Working Directory to Mount, default is ${WORKDIR}"
@@ -54,6 +56,11 @@ parse_args() {
                 help
             ;;
             -b|--build)
+                build_image
+                shift
+            ;;
+            -f|--force-build)
+                BUILD_CACHE="--no-cache"
                 build_image
                 shift
             ;;

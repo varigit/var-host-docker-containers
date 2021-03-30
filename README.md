@@ -89,3 +89,13 @@ TODO
 **Building B2Qt Using Scripts**
 
 TODO
+
+# Rebuilding Docker Image
+
+The Docker Image will be built automatically by ./run.sh the first time. Any commits to the GIT repository will cause the image to be rebuilt using cache (e.g. not the latest from Ubuntu)
+
+To force the container to be rebuilt with the latest from Ubuntu each time, pass the `-f` argument:
+
+```$ ./run.sh -f ...```
+
+Currently for Yocto and Debian, the container takes approximately 2.5 minutes to rebuild and install all dependencies.

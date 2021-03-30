@@ -42,5 +42,8 @@ RUN apt-get install -y \
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+rx /bin/repo
 
+# Update to latest
+RUN apt-get update && apt-get dist-upgrade
+
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
