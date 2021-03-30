@@ -10,6 +10,7 @@ readonly DOCKER_IMAGE="yocto-20-${GIT_COMMIT}"
 WORKDIR=$(pwd)
 SCRIPT=""
 INTERACTIVE="-it"
+DOCKER_VOLUMES=""
 
 build_image() {
     docker build -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT}
@@ -24,6 +25,7 @@ help() {
     echo " -e --env                 Docker Environment File"
     echo " -n --non-interactive     Run container and exit without interactive shell"
     echo " -w --workdir             Docker Working Directory to Mount, default is ${WORKDIR}"
+    echo " -v --volume              Docker Volumes to Mount, e.g. -v /opt/yocto_downloads:/opt/yocto_downloads -v /opt/yocto_sstate:/opt/yocto_sstate"
     echo " -h --help                Display this Help Message"
     echo
     exit
@@ -48,6 +50,15 @@ parse_args() {
                 if [ "$WORKDIR" = "" ]; then
                     help
                 fi
+                shift # past argument
+                shift # past value
+            ;;
+            -v|--volume)
+                NEW_VOL="$2"
+                if [ "$NEW_VOL" = "" ]; then
+                    help
+                fi
+                DOCKER_VOLUMES="${DOCKER_VOLUMES} -v ${NEW_VOL}"
                 shift # past argument
                 shift # past value
             ;;
@@ -87,6 +98,7 @@ docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     -v ~/.ssh:/home/vari/.ssh \
     -v ${WORKDIR}:/workdir \
     -v ~/.gitconfig:/home/vari/.gitconfig \
+    ${DOCKER_VOLUMES} \
     ${INTERACTIVE} \
     ${ENV_FILE} \
     variscite:${DOCKER_IMAGE}
