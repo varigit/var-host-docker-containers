@@ -9,6 +9,7 @@ readonly DOCKER_IMAGE="yocto-20-${GIT_COMMIT}"
 
 WORKDIR=$(pwd)
 SCRIPT=""
+INTERACTIVE="-it"
 
 build_image() {
     docker build -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT}
@@ -19,10 +20,11 @@ help() {
     echo "Usage: ${DIR_SCRIPT}/${FILE_SCRIPT} <options>"
     echo
     echo " optional:"
-    echo " -b --build   Build Docker Image"
-    echo " -e --env     Docker Environment File"
-    echo " -w --workdir Docker Working Directory to Mount, default is ${WORKDIR}"
-    echo " -h --help    display this Help message"
+    echo " -b --build               Build Docker Image"
+    echo " -e --env                 Docker Environment File"
+    echo " -n --non-interactive     Run container and exit without interactive shell"
+    echo " -w --workdir             Docker Working Directory to Mount, default is ${WORKDIR}"
+    echo " -h --help                Display this Help Message"
     echo
     exit
 }
@@ -35,6 +37,10 @@ parse_args() {
             ;;
             -b|--build)
                 build_image
+                shift
+            ;;
+            -n|--non-interactive)
+                INTERACTIVE=""
                 shift
             ;;
             -w|--workdir)
@@ -81,6 +87,6 @@ docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     -v ~/.ssh:/home/vari/.ssh \
     -v ${WORKDIR}:/workdir \
     -v ~/.gitconfig:/home/vari/.gitconfig \
-    -it \
+    ${INTERACTIVE} \
     ${ENV_FILE} \
     variscite:${DOCKER_IMAGE}
