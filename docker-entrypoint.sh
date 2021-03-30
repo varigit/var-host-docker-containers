@@ -26,3 +26,8 @@ adduser ${USER} sudo
 echo "cd /workdir" > /home/${USER}/.bashrc
 # switch to new user
 su - "${USER}"
+
+# If BUILD_SCRIPT set in Docker Environment, run it
+if [ ! ${BUILD_SCRIPT} = "" ]; then
+    ${BUILD_SCRIPT}
+fi
