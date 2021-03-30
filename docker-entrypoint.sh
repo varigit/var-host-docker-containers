@@ -22,12 +22,25 @@ sed -i -e "s/^${USER}:\([^:]*\):[0-9]*/${USER}:\1:${HOST_USER_GID}/"  /etc/group
 # allow user to run sudo
 adduser ${USER} sudo
 
+# Create Environment Whitelist for SU command
+function create_whitelist {
+    local VARNAME
+    echo -n "" > /tmp/env_whitelist
+    compgen -v | grep "ENV_" | while read -r VARNAME; do
+      echo -n "${VARNAME}," >> /tmp/env_whitelist
+    done
+}
+
+create_whitelist
+ENV_WHITELIST="$(cat /tmp/env_whitelist)"
+
 #change to /workdir after login
 echo "cd /workdir" > /home/${USER}/.bashrc
-# switch to new user
-su - "${USER}"
 
-# If BUILD_SCRIPT set in Docker Environment, run it
-if [ ! ${BUILD_SCRIPT} = "" ]; then
-    ${BUILD_SCRIPT}
+# If BUILD_SCRIPT set in Docker Environment, run it after login
+if [ ! ${ENV_BUILD_SCRIPT} = "" ]; then
+    echo "${ENV_BUILD_SCRIPT}" >> /home/${USER}/.bashrc
 fi
+
+# switch to new user
+su -w "${ENV_WHITELIST}" - "${USER}"
