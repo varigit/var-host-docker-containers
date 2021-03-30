@@ -35,6 +35,11 @@ RUN apt-get update && apt-get install -y \
      xz-utils debianutils iputils-ping libsdl1.2-dev xterm git-lfs curl g++-multilib \
      libfontconfig libfontconfig1
 
+# Debian
+RUN apt-get install -y \
+     bison flex device-tree-compiler rsync libssl-dev bc \
+     binfmt-support qemu qemu-user-static debootstrap
+
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+rx /bin/repo
 
 COPY docker-entrypoint.sh /usr/local/bin/
