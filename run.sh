@@ -103,6 +103,12 @@ parse_args() {
 
 parse_args "$@"
 
+# Verify qemu-user-static is is installed
+if [ ! -f /usr/bin/qemu-aarch64-static ]; then
+    echo "Error: Please install qemu-user-static on host, required for debian"
+    exit -1
+fi
+
 # Build container
 if ! docker images | grep -q "${DOCKER_IMAGE}"; then
     build_image
