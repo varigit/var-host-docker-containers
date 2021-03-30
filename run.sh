@@ -25,9 +25,21 @@ help() {
     echo " -e --env                 Docker Environment File"
     echo " -n --non-interactive     Run container and exit without interactive shell"
     echo " -w --workdir             Docker Working Directory to Mount, default is ${WORKDIR}"
-    echo " -v --volume              Docker Volumes to Mount, e.g. -v /opt/yocto_downloads:/opt/yocto_downloads -v /opt/yocto_sstate:/opt/yocto_sstate"
+    echo " -v --volume              Docker Volumes to Mount, e.g. -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
     echo " -h --help                Display this Help Message"
     echo
+    echo "Example - Run Interactive Shell In Current Directory:"
+    echo "./run.sh"
+    echo
+    echo "Example - Run Interactive Shell In Another Directory:"
+    echo "./run.sh -w ~/var-fslc-yocto"
+    echo
+    echo "Example - Run a yocto build using an example imx8mn-var-som environment:"
+    echo "./run.sh -n -w ~/var-fslc-yocto -e imx8mn-var-som-yocto.env"
+    echo
+    echo "Example - Run a yocto build using an example imx8mn-var-som environment with cached downloads and sstate"
+    echo "./run.sh -n -w ~/var-fslc-yocto -e imx8mn-var-som-yocto.env -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
+    echo  ./run.sh -n -w ~/var-fslc-yocto -e imx8mm-var-dart-yocto.env -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate
     exit
 }
 
