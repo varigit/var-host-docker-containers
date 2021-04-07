@@ -19,6 +19,7 @@ From a brand new Ubuntu installation:
 
 # Usage
 
+On Host Computer:
 ```
 $ mkdir ~/var-fslc-yocto
 $ ./run.sh -w ~/var-fslc-yocto
@@ -32,6 +33,15 @@ vari@460e5ba862b1:/workdir$ repo sync -j4
 vari@460e5ba862b1:/workdir$ MACHINE=imx8mn-var-som DISTRO=fslc-xwayland . setup-environment build_xwayland
 vari@460e5ba862b1:/workdir$ bitbake fsl-image-gui
 ```
+
+## Container Authentication
+
+You may use the sudo command inside the container with these credentials:
+
+|Username   | Password  |
+|-----------|-----------|
+| vari      | ubuntu
+<br>
 # Rebuilding Docker Image
 
 The Docker Image will be built automatically by ./run.sh the first time. Any commits to the GIT repository will cause the image to be rebuilt with the new changes using cache (not necessarily the latest from Ubuntu)
