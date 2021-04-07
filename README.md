@@ -33,6 +33,15 @@ vari@460e5ba862b1:/workdir$ repo sync -j4
 vari@460e5ba862b1:/workdir$ MACHINE=imx8mn-var-som DISTRO=fslc-xwayland . setup-environment build_xwayland
 vari@460e5ba862b1:/workdir$ bitbake fsl-image-gui
 ```
+## Docker Privileged Mode (Debian)
+
+When Building Debian, Docker requires access to the Host devices. To provide access, pass the -p argument to start Docker in privileged mode.
+
+Example:
+```
+$ mkdir ~/var-debian
+$ ./run.sh -p -w ~/var-debian
+```
 
 ## Container Authentication
 
