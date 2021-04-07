@@ -5,8 +5,9 @@
 readonly FILE_SCRIPT="$(basename "$0")"
 readonly DIR_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 readonly GIT_COMMIT="$(git log -1 --format=%h)"
-readonly DOCKER_IMAGE="yocto-20-${GIT_COMMIT}"
 
+UBUNTU_VERSIONS_SUPPORTED=("20.04" "18.04" "16.04")
+UBUNTU_VERSION="20.04"
 WORKDIR=$(pwd)
 SCRIPT=""
 INTERACTIVE="-it"
@@ -15,7 +16,24 @@ PRIVLEGED=""
 BUILD_CACHE=""
 
 build_image() {
-    docker build ${BUILD_CACHE} -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT}
+    DOCKERFILE="$1"
+    if [ ! -f "${DOCKERFILE}" ]; then
+        echo "${DOCKERFILE} not found"
+        exit -1
+    fi
+    docker build ${BUILD_CACHE} -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT} -f ${DOCKERFILE}
+}
+
+array_contains () {
+    local seeking=$1; shift
+    local in=1
+    for element; do
+        if [[ $element == "$seeking" ]]; then
+            in=0
+            break
+        fi
+    done
+    return $in
 }
 
 help() {
@@ -23,6 +41,7 @@ help() {
     echo "Usage: ${DIR_SCRIPT}/${FILE_SCRIPT} <options>"
     echo
     echo " optional:"
+    echo " -u --ubuntu-version      Ubuntu Version: ${UBUNTU_VERSIONS_SUPPORTED[@]}"
     echo " -b --build               Build Docker Image, includes only changes made to Dockerfile"
     echo " -f --force-build         Build Docker Image with --no-cache, will include latest from Ubuntu"
     echo " -e --env                 Docker Environment File"
@@ -50,13 +69,19 @@ parse_args() {
             -h|--help)
                 help
             ;;
+            -u|--ubuntu-version)
+                UBUNTU_VERSION="$2"
+                # Verify Ubuntu Version is Supported
+                array_contains "${UBUNTU_VERSION}" "${UBUNTU_VERSIONS_SUPPORTED[@]}" || echo "Error, Ubuntu '${UBUNTU_VERSION}' not supported, use one of: ${UBUNTU_VERSIONS_SUPPORTED[@]}";
+                shift
+                shift
+            ;;
             -b|--build)
                 build_image
                 shift
             ;;
             -f|--force-build)
                 BUILD_CACHE="--no-cache"
-                build_image
                 shift
             ;;
             -n|--non-interactive)
@@ -107,6 +132,8 @@ parse_args() {
 
 parse_args "$@"
 
+readonly DOCKER_IMAGE="yocto-${UBUNTU_VERSION}-${GIT_COMMIT}"
+
 # Verify qemu-user-static is is installed
 if [ ! -f /usr/bin/qemu-aarch64-static ]; then
     echo "Error: Please install qemu-user-static on host, required for debian"
@@ -114,8 +141,8 @@ if [ ! -f /usr/bin/qemu-aarch64-static ]; then
 fi
 
 # Build container
-if ! docker images | grep -q "${DOCKER_IMAGE}"; then
-    build_image
+if ! docker images | grep -q "${DOCKER_IMAGE}" || [ -n "$BUILD_CACHE" ]; then
+    build_image "Dockerfile_${UBUNTU_VERSION}"
 fi
 
 uid=$(id -u ${USER})
