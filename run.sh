@@ -38,14 +38,9 @@ help() {
     echo "Example - Run Interactive Shell In Another Directory:"
     echo "./run.sh -w ~/var-fslc-yocto"
     echo
-    echo "Example - Run a yocto build using an example imx8mn-var-som environment:"
-    echo "./run.sh -n -w ~/var-fslc-yocto -e imx8mn-var-som-yocto.env"
+    echo "Example - Run Interactive Shell In Another Directory, mounting directories inside Docker container"
+    echo "./run.sh -w ~/var-fslc-yocto -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
     echo
-    echo "Example - Run a yocto build using an example imx8mn-var-som environment with cached downloads and sstate"
-    echo "./run.sh -n -w ~/var-fslc-yocto -e imx8mn-var-som-yocto.env -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
-    echo
-    echo "Example - Run a debian build using an example imx8mn-var-som environment:"
-    echo "./run.sh -n -w ~/var-debian -e imx8mn-var-som-debian.env"
     exit
 }
 
@@ -127,7 +122,6 @@ uid=$(id -u ${USER})
 gid=$(id -g ${USER})
 
 docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
-    -v ${DIR_SCRIPT}/build_scripts:/workdir/build_scripts \
     -v ~/.ssh:/home/vari/.ssh \
     -v ${WORKDIR}:/workdir \
     -v ~/.gitconfig:/home/vari/.gitconfig \

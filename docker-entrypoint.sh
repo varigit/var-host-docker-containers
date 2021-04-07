@@ -23,6 +23,7 @@ sed -i -e "s/^${USER}:\([^:]*\):[0-9]*/${USER}:\1:${HOST_USER_GID}/"  /etc/group
 adduser ${USER} sudo
 
 # Create Environment Whitelist for SU command
+# Environment variables starting with ENV_ will be passed to ${USER} environment
 function create_whitelist {
     local VARNAME
     echo -n "" > /tmp/env_whitelist
@@ -37,10 +38,14 @@ ENV_WHITELIST="$(cat /tmp/env_whitelist)"
 #change to /workdir after login
 echo "cd /workdir" > /home/${USER}/.bashrc
 
-# If BUILD_SCRIPT set in Docker Environment, run it after login
-if [ ! ${ENV_BUILD_SCRIPT} = "" ]; then
-    echo "${ENV_BUILD_SCRIPT}" >> /home/${USER}/.bashrc
+# If ENB_RUN_SCRIPT set in Docker Environment, run it after login
+if [ ! ${ENV_RUN_SCRIPT} = "" ]; then
+    echo "${ENV_RUN_SCRIPT}" >> /home/${USER}/.bashrc
 fi
 
-# switch to new user
-su -w "${ENV_WHITELIST}" - "${USER}"
+# switch to new user, whitelisting environment for Ubuntu >= 20.04
+if lsb_release -a | grep "20.04"; then
+    su -w "${ENV_WHITELIST}" - "${USER}"
+else
+    su - "${USER}"
+fi
