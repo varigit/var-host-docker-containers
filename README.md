@@ -51,6 +51,7 @@ You may use the sudo command inside the container with these credentials:
 |-----------|-----------|
 | vari      | ubuntu
 <br>
+
 # Rebuilding Docker Image
 
 The Docker Image will be built automatically by ./run.sh the first time. Any commits to the GIT repository will cause the image to be rebuilt with the new changes using cache (not necessarily the latest from Ubuntu)
