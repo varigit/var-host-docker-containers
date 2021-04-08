@@ -35,6 +35,12 @@ function create_whitelist {
 create_whitelist
 ENV_WHITELIST="$(cat /tmp/env_whitelist)"
 
+# Make sure current Linux Headers are installed
+# Required for nxp-wlan-sdk yocto recipe
+if [ ! -d "/lib/modules/$(uname -r)" ]; then
+    echo ubuntu | sudo -S sudo apt install linux-headers-$(uname -r) -y
+fi
+
 #change to /workdir after login
 echo "cd /workdir" > /home/${USER}/.bashrc
 
