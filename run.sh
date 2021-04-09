@@ -6,6 +6,8 @@ readonly FILE_SCRIPT="$(basename "$0")"
 readonly DIR_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 readonly GIT_COMMIT="$(git --git-dir=${DIR_SCRIPT}/.git log -1 --format=%h)"
 
+cd ${DIR_SCRIPT}
+
 UBUNTU_VERSIONS_SUPPORTED=("20.04" "18.04" "16.04")
 UBUNTU_VERSION="20.04"
 WORKDIR=$(pwd)
@@ -17,8 +19,8 @@ BUILD_CACHE=""
 
 build_image() {
     DOCKERFILE="$1"
-    if [ ! -f "${DOCKERFILE}" ]; then
-        echo "${DOCKERFILE} not found"
+    if [ ! -f "${DIR_SCRIPT}/${DOCKERFILE}" ]; then
+        echo "${DIR_SCRIPT}/${DOCKERFILE} not found"
         exit -1
     fi
     docker build ${BUILD_CACHE} -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT} -f ${DOCKERFILE}
