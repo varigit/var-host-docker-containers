@@ -32,7 +32,7 @@ fi
 echo "cd /workdir" > /home/${USER}/.bashrc
 
 # If ENV_RUN_SCRIPT set in Docker Environment, run it after login
-if [ ! ${ENV_RUN_SCRIPT} = "" ]; then
+if [ ! "${ENV_RUN_SCRIPT}" = "" ]; then
     echo "${ENV_RUN_SCRIPT}" >> /home/${USER}/.bashrc
 fi
 
