@@ -116,13 +116,11 @@ parse_args() {
             -e|--env)
                 ENV_FILE=$2
                 if [ ! -f "${ENV_FILE}" ]; then
-                    if [ ! -f "${DIR_SCRIPT}/env/${ENV_FILE}" ]; then
-                        echo "Error: ${ENV_FILE} Not Found"
-                        echo "Error: ${DIR_SCRIPT}/env/${ENV_FILE} Not Found either"
-                        help
-                    fi
+                    echo "Error: ${ENV_FILE} Not Found"
+                    echo "Error: ${DIR_SCRIPT}/env/${ENV_FILE} Not Found either"
+                    help
                 fi
-                ENV_FILE="--env-file=${DIR_SCRIPT}/env/${ENV_FILE}"
+                ENV_FILE="--env-file=${ENV_FILE}"
                 shift # past argument
                 shift # past value
             ;;
