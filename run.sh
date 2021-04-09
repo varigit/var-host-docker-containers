@@ -93,6 +93,12 @@ parse_args() {
                 if [ "$WORKDIR" = "" ]; then
                     help
                 fi
+                if [ ! -d $WORKDIR ]; then
+                    echo "Error: ${WORKDIR} doesn't exist"
+                    echo "Please verify path and run:"
+                    echo "mkdir -p ${WORKDIR}"
+                    exit -1
+                fi
                 shift # past argument
                 shift # past value
             ;;
