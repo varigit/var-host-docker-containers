@@ -4,7 +4,7 @@
 
 readonly FILE_SCRIPT="$(basename "$0")"
 readonly DIR_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-readonly GIT_COMMIT="$(git log -1 --format=%h)"
+readonly GIT_COMMIT="$(git --git-dir=${DIR_SCRIPT}/.git log -1 --format=%h)"
 
 UBUNTU_VERSIONS_SUPPORTED=("20.04" "18.04" "16.04")
 UBUNTU_VERSION="20.04"
