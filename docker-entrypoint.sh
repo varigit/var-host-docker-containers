@@ -22,19 +22,6 @@ sed -i -e "s/^${USER}:\([^:]*\):[0-9]*/${USER}:\1:${HOST_USER_GID}/"  /etc/group
 # allow user to run sudo
 adduser ${USER} sudo
 
-# Create Environment Whitelist for SU command
-# Environment variables starting with ENV_ will be passed to ${USER} environment
-function create_whitelist {
-    local VARNAME
-    echo -n "" > /tmp/env_whitelist
-    compgen -v | grep "ENV_" | while read -r VARNAME; do
-      echo -n "${VARNAME}," >> /tmp/env_whitelist
-    done
-}
-
-create_whitelist
-ENV_WHITELIST="$(cat /tmp/env_whitelist)"
-
 # Make sure current Linux Headers are installed
 # Required for nxp-wlan-sdk yocto recipe
 if [ ! -d "/lib/modules/$(uname -r)" ]; then
@@ -44,14 +31,9 @@ fi
 #change to /workdir after login
 echo "cd /workdir" > /home/${USER}/.bashrc
 
-# If ENB_RUN_SCRIPT set in Docker Environment, run it after login
+# If ENV_RUN_SCRIPT set in Docker Environment, run it after login
 if [ ! ${ENV_RUN_SCRIPT} = "" ]; then
     echo "${ENV_RUN_SCRIPT}" >> /home/${USER}/.bashrc
 fi
 
-# switch to new user, whitelisting environment for Ubuntu >= 20.04
-if lsb_release -a | grep "20.04"; then
-    su -w "${ENV_WHITELIST}" - "${USER}"
-else
-    su - "${USER}"
-fi
+su - "${USER}"
