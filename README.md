@@ -13,9 +13,10 @@ This repository provides a Docker container for building Variscite software rele
 From a brand new Ubuntu installation:
 
 1. Install Docker `$ sudo apt update && sudo apt install docker.io`
-2. Give permissions to run docker without sudo `$ sudo usermod -aG docker ${USER}`
-3. Logout and Login again for permissions to take effect
-4. Clone this repository
+2. Install Host Linux Headers (required for some Yocto versions) `$ sudo apt install linux-headers-$(uname -r)`
+3. Give permissions to run docker without sudo `$ sudo usermod -aG docker ${USER}`
+4. Logout and Login again for permissions to take effect
+5. Clone this repository
 
 # Usage
 
