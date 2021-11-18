@@ -29,6 +29,10 @@ ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
+# jig
+RUN apt-get update && apt-get install -y \
+     kpartx parted
+
 # Yocto
 RUN apt-get update && apt-get install -y \
      gawk wget git diffstat unzip texinfo gcc-multilib \
