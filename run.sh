@@ -154,6 +154,14 @@ fi
 uid=$(id -u ${USER})
 gid=$(id -g ${USER})
 
+# .gitconfig is required by repo and git
+if [ ! -f ${HOME}/.gitconfig ]; then
+    echo "Error: Please create ${HOME}/.gitconfig on your host computer:"
+    echo '    $ git config --global user.email "you@example.com"'
+    echo '    $ git config --global user.name "Your Name"'
+    exit -1
+fi
+
 docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     -v ~/.ssh:/home/vari/.ssh \
     -v ${WORKDIR}:/workdir \
