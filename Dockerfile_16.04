@@ -82,6 +82,10 @@ RUN apt-get install -y \
      ./configure && \
      sudo make altinstall -j 16
 
+# Install development utilities
+RUN apt-get install -y \
+     vim
+
 # Update to latest
 RUN apt-get update && apt-get dist-upgrade -y
 
