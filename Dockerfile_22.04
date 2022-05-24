@@ -1,0 +1,83 @@
+# SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+# Copyright 2021 Variscite Ltd.
+
+FROM ubuntu:22.04
+MAINTAINER Nate Drude "nate.d@variscite.com"
+
+RUN apt-get update
+RUN apt-get install -y sudo openssl apt-utils
+
+WORKDIR /workdir
+
+# Define username and temporary uid and gid
+ENV USER=vari USER_ID=1000 USER_GID=1000
+
+# now creating user, change password to 'ubuntu'
+RUN groupadd --gid "${USER_GID}" "${USER}" && \
+    useradd \
+      --uid ${USER_ID} \
+      --gid ${USER_GID} \
+      --create-home \
+      --shell /bin/bash\
+      --password $(openssl passwd -1 ubuntu)\
+      ${USER}
+
+#setup locale
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y locales && dpkg-reconfigure locales --frontend noninteractive && locale-gen "en_US.UTF-8" && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+# Yocto
+RUN apt-get update && apt-get install -y \
+     gawk wget git diffstat unzip texinfo gcc-multilib \
+     build-essential chrpath socat cpio python3 python3-pip python3-pexpect \
+     xz-utils debianutils iputils-ping libsdl1.2-dev xterm \
+     autoconf libtool libglib2.0-dev libarchive-dev \
+     sed cvs subversion coreutils texi2html docbook-utils \
+     help2man make gcc g++ desktop-file-utils libgl1-mesa-dev libglu1-mesa-dev \
+     mercurial automake groff curl lzop asciidoc u-boot-tools dos2unix mtd-utils pv \
+     libncurses5 libncurses5-dev libncursesw5-dev libelf-dev zlib1g-dev bc rename \
+     iproute2
+
+# B2Qt
+RUN apt-get update && apt-get install -y \
+     gawk curl git-core diffstat unzip p7zip gcc-multilib g++-multilib \
+     build-essential chrpath libsdl1.2-dev xterm gperf bison texinfo rename
+
+# B2Qt git-lfs
+RUN apt-get install -y git-lfs || \
+     curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && apt-get install -y git-lfs
+
+# Debian
+RUN apt-get update && apt-get install -y \
+     binfmt-support qemu qemu-user-static debootstrap kpartx \
+     lvm2 dosfstools gpart binutils bison git lib32ncurses5-dev libssl-dev gawk wget \
+     git-core diffstat unzip texinfo gcc-multilib build-essential chrpath socat libsdl1.2-dev \
+     autoconf libtool libglib2.0-dev libarchive-dev xterm sed cvs subversion \
+     kmod coreutils texi2html bc docbook-utils help2man make gcc g++ \
+     desktop-file-utils libgl1-mesa-dev libglu1-mesa-dev mercurial automake groff curl \
+     lzop asciidoc u-boot-tools mtd-utils device-tree-compiler flex \
+     rsync
+
+# Android
+RUN apt-get update && apt-get install -y \
+     gnupg flex bison gperf build-essential zip gcc-multilib g++-multilib \
+     libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z-dev libz-dev libssl-dev \
+     libgl1-mesa-dev libxml2-utils xsltproc unzip bc \
+     uuid uuid-dev zlib1g-dev liblz-dev liblzo2-2 liblzo2-dev lzop git curl \
+     u-boot-tools mtd-utils android-sdk-libsparse-utils device-tree-compiler gdisk m4 \
+     openjdk-8-jdk
+
+RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+rx /bin/repo
+
+# Install development utilities
+RUN apt-get install -y \
+     vim
+
+# Update to latest
+RUN apt-get update && apt-get dist-upgrade -y
+
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
