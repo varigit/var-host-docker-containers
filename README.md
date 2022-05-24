@@ -4,7 +4,7 @@ This repository provides a Docker container for building Variscite software rele
 
 |Container Version   | Variscite Release                                                          |
 |--------------------|----------------------------------------------------------------------------|
-| Ubuntu 20.04       | - Yocto Dunfell<br>- Android 10<br>- Debian Bullseye<br>- Boot2Qt Dunfell
+| Ubuntu 20.04       | - Yocto Dunfell, Hardknott<br>- Android 10, 11<br>- Debian Bullseye<br>- Boot2Qt Dunfell
 | Ubuntu 18.04       | - Yocto Zeus
 | Ubuntu 16.04       | - Yocto Pyro, Rocko, Sumo, Thud, Warrior
 | Ubuntu 14.04       | - Android 6
