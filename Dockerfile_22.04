@@ -59,7 +59,7 @@ RUN apt-get update && apt-get install -y \
      kmod coreutils texi2html bc docbook-utils help2man make gcc g++ \
      desktop-file-utils libgl1-mesa-dev libglu1-mesa-dev mercurial automake groff curl \
      lzop asciidoc u-boot-tools mtd-utils device-tree-compiler flex \
-     rsync
+     rsync cmake
 
 # Android
 RUN apt-get update && apt-get install -y \
