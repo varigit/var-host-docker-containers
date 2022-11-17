@@ -83,5 +83,9 @@ RUN apt-get install -y \
 # Update to latest
 RUN apt-get update && apt-get dist-upgrade -y
 
+# make /bin/sh symlink to bash instead of dash:
+RUN echo "dash dash/sh boolean false" | debconf-set-selections
+RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
+
 COPY docker-entrypoint.sh /usr/local/bin/
 ENTRYPOINT ["docker-entrypoint.sh"]
