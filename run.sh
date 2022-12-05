@@ -74,7 +74,7 @@ parse_args() {
             -u|--ubuntu-version)
                 UBUNTU_VERSION="$2"
                 # Verify Ubuntu Version is Supported
-                array_contains "${UBUNTU_VERSION}" "${UBUNTU_VERSIONS_SUPPORTED[@]}" || echo "Error, Ubuntu '${UBUNTU_VERSION}' not supported, use one of: ${UBUNTU_VERSIONS_SUPPORTED[@]}";
+                array_contains "${UBUNTU_VERSION}" "${UBUNTU_VERSIONS_SUPPORTED[@]}" || ( echo "Error, Ubuntu '${UBUNTU_VERSION}' not supported, use one of: ${UBUNTU_VERSIONS_SUPPORTED[@]}"; exit 1);
                 shift
                 shift
             ;;
