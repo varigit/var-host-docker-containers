@@ -8,7 +8,7 @@ readonly GIT_COMMIT="$(git --git-dir=${DIR_SCRIPT}/.git log -1 --format=%h)"
 
 cd ${DIR_SCRIPT}
 
-UBUNTU_VERSIONS_SUPPORTED=("20.04" "18.04" "16.04" "14.04")
+UBUNTU_VERSIONS_SUPPORTED=("22.04" "20.04" "18.04" "16.04" "14.04")
 UBUNTU_VERSION="20.04"
 WORKDIR=$(pwd)
 SCRIPT=""
