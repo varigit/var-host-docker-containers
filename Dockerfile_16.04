@@ -83,7 +83,7 @@ RUN apt-get install -y \
      sudo make altinstall -j 16
 
 # Install development utilities
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
      vim tmux
 
 # Update to latest

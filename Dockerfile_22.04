@@ -73,7 +73,7 @@ RUN apt-get update && apt-get install -y \
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+rx /bin/repo
 
 # Install development utilities
-RUN apt-get install -y \
+RUN apt-get update && apt-get install -y \
      vim tmux
 
 # Update to latest
