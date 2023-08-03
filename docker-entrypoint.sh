@@ -19,6 +19,9 @@ fi
 sed -i -e "s/^${USER}:\([^:]*\):[0-9]*:[0-9]*/${USER}:\1:${HOST_USER_ID}:${HOST_USER_GID}/"  /etc/passwd
 sed -i -e "s/^${USER}:\([^:]*\):[0-9]*/${USER}:\1:${HOST_USER_GID}/"  /etc/group
 
+# Update ownership of the user's home directory
+chown -R ${HOST_USER_ID}:${HOST_USER_GID} /home/${USER}
+
 # allow user to run sudo
 adduser ${USER} sudo
 
