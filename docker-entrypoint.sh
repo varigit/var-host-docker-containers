@@ -22,6 +22,13 @@ sed -i -e "s/^${USER}:\([^:]*\):[0-9]*/${USER}:\1:${HOST_USER_GID}/"  /etc/group
 # Update ownership of the user's home directory
 chown -R ${HOST_USER_ID}:${HOST_USER_GID} /home/${USER}
 
+# Copy the .gitconfig file from the host to the container's user directory.
+# This ensures that the container uses the same Git configuration as the host.
+# Copying (instead of mounting) avoids potential access conflicts, especially
+# when the file is being accessed or modified by multiple containers or the host simultaneously.
+cp /tmp/host_gitconfig /home/vari/.gitconfig
+chown ${USER}:${USER} /home/vari/.gitconfig
+
 # allow user to run sudo
 adduser ${USER} sudo
 
