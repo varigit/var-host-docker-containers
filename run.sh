@@ -51,6 +51,7 @@ help() {
     echo " -w --workdir             Docker Working Directory to Mount, default is ${WORKDIR}"
     echo " -v --volume              Docker Volumes to Mount, e.g. -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
     echo " -p --privledged          Run docker in privledged mode, allowing access to all devices"
+    echo " --host-network           Run container with host network mode"
     echo " -h --help                Display this Help Message"
     echo
     echo "Example - Run Interactive Shell In Current Directory:"
@@ -128,6 +129,10 @@ parse_args() {
                 PRIVLEGED=" --privileged"
                 shift
             ;;
+            --host-network)
+                DOCKER_HOST_NETWORK=" --network host"
+                shift
+            ;;
             *)    # unknown option
                 echo "Unknown option: $1"
                 help
@@ -173,4 +178,5 @@ docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     ${INTERACTIVE} \
     ${ENV_FILE} \
     ${PRIVLEGED} \
+    ${DOCKER_HOST_NETWORK} \
     variscite:${DOCKER_IMAGE}
