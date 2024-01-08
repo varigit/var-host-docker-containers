@@ -74,7 +74,7 @@ RUN apt-get update && apt-get install -y \
      u-boot-tools mtd-utils android-tools-fsutils device-tree-compiler gdisk m4 \
      openjdk-8-jdk
 
-RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+rx /bin/repo
+RUN curl https://storage.googleapis.com/git-repo-downloads/repo-2.32 > /bin/repo && chmod a+rx /bin/repo
 
 # Install development utilities
 RUN apt-get update && apt-get install -y \
