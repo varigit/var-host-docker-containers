@@ -66,6 +66,9 @@ help() {
     exit
 }
 
+# Add a flag to determine whether to build the image
+BUILD_IMAGE_FLAG=0
+
 parse_args() {
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -80,7 +83,8 @@ parse_args() {
                 shift
             ;;
             -b|--build)
-                build_image
+                # Set the flag to build the image later
+                BUILD_IMAGE_FLAG=1
                 shift
             ;;
             -f|--force-build)
@@ -151,8 +155,10 @@ if [ ! -f /usr/bin/qemu-aarch64-static ]; then
     exit -1
 fi
 
-# Build container
-if ! docker images | grep -q "${DOCKER_IMAGE}" || [ -n "$BUILD_CACHE" ]; then
+# Build container if the image does not exist, the cache needs to be rebuilt, or the build flag is set
+if ! docker images | grep -q "${DOCKER_IMAGE}" \
+    || [ -n "$BUILD_CACHE" ] \
+    || [ $BUILD_IMAGE_FLAG -eq 1 ]; then
     build_image "Dockerfile_${UBUNTU_VERSION}"
 fi
 
