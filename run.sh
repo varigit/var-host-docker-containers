@@ -149,7 +149,7 @@ parse_args "$@"
 
 readonly DOCKER_IMAGE="yocto-${UBUNTU_VERSION}-${GIT_COMMIT}"
 
-# Verify qemu-user-static is is installed
+# Verify qemu-user-static is installed
 if [ ! -f /usr/bin/qemu-aarch64-static ]; then
     echo "Error: Please install qemu-user-static on host, required for debian"
     exit -1
