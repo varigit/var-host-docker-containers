@@ -16,6 +16,7 @@ INTERACTIVE="-it"
 DOCKER_VOLUMES=""
 PRIVLEGED=""
 BUILD_CACHE=""
+CPUS="0.000"
 
 build_image() {
     DOCKERFILE="$1"
@@ -52,6 +53,7 @@ help() {
     echo " -v --volume              Docker Volumes to Mount, e.g. -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
     echo " -p --privledged          Run docker in privledged mode, allowing access to all devices"
     echo " --host-network           Run container with host network mode"
+    echo " -c --cpus                Limit the number of CPUs available to the container, default is ${CPUS}, which will use all available CPUs"
     echo " -h --help                Display this Help Message"
     echo
     echo "Example - Run Interactive Shell In Current Directory:"
@@ -137,6 +139,15 @@ parse_args() {
                 DOCKER_HOST_NETWORK=" --network host"
                 shift
             ;;
+            -c|--cpus)
+                CPUS="$2"
+                if ! [[ "$CPUS" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+                    echo "Error: CPU limit must be a valid number."
+                    exit 1
+                fi
+                shift
+                shift
+            ;;
             *)    # unknown option
                 echo "Unknown option: $1"
                 help
@@ -185,4 +196,5 @@ docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     ${ENV_FILE} \
     ${PRIVLEGED} \
     ${DOCKER_HOST_NETWORK} \
+    --cpus=${CPUS} \
     variscite:${DOCKER_IMAGE}
