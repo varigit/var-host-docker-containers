@@ -188,6 +188,7 @@ docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     -v ~/.ssh:/home/vari/.ssh \
     -v ${WORKDIR}:/workdir \
     -v ~/.gitconfig:/tmp/host_gitconfig \
+    -v /opt:/opt \
     -v /usr/src:/usr/src \
     -v /lib/modules:/lib/modules \
     -v /linux-kernel:/linux-kernel \
