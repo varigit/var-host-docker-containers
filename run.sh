@@ -17,6 +17,7 @@ DOCKER_VOLUMES=""
 PRIVLEGED=""
 BUILD_CACHE=""
 CPUS="0.000"
+QUIRKS=""
 
 build_image() {
     DOCKERFILE="$1"
@@ -156,6 +157,19 @@ parse_args() {
     done
 }
 
+set_quirks() {
+    # Get Host OS Information
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+    fi
+
+    # If Host is Ubuntu 20.04 and Container is Ubuntu 22.04
+    if [ "$UBUNTU_VERSION" = "22.04" ] && [ "$VERSION_ID" = "20.04" ] && [ "$ID" = "ubuntu" ]; then
+        # https://e2e.ti.com/support/processors-group/processors/f/processors-forum/1321924/j721excpxevm-yocto-build-always-gives-an-error-for-gdk-pixbuf_2-42-10-bb-do_compile
+        QUIRKS="${QUIRKS} --security-opt seccomp=unconfined"
+    fi
+}
+
 parse_args "$@"
 
 readonly DOCKER_IMAGE="yocto-${UBUNTU_VERSION}-${GIT_COMMIT}"
@@ -184,6 +198,8 @@ if [ ! -f ${HOME}/.gitconfig ]; then
     exit -1
 fi
 
+set_quirks
+
 docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     -v ~/.ssh:/home/vari/.ssh \
     -v ${WORKDIR}:/workdir \
@@ -198,4 +214,5 @@ docker run --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
     ${PRIVLEGED} \
     ${DOCKER_HOST_NETWORK} \
     --cpus=${CPUS} \
+    ${QUIRKS} \
     variscite:${DOCKER_IMAGE}
