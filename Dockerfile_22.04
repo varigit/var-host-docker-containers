@@ -76,6 +76,11 @@ RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && c
 RUN apt-get update && apt-get install -y \
      vim tmux
 
+# Install development packages
+RUN apt-get update && apt-get install -y \
+     python3-cryptography python3-jsonschema python3-pyelftools \
+     python3-yaml swig gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
+
 # Update to latest
 RUN apt-get update && apt-get dist-upgrade -y
 
