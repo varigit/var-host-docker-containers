@@ -56,6 +56,7 @@ help() {
     echo " --host-network           Run container with host network mode"
     echo " -c --cpus                Limit the number of CPUs available to the container, default is ${CPUS}, which will use all available CPUs"
     echo " -h --help                Display this Help Message"
+    echo " --command                Run a command inside the docker container, implies -n"
     echo
     echo "Example - Run Interactive Shell In Current Directory:"
     echo "./run.sh"
@@ -77,6 +78,12 @@ parse_args() {
         case $1 in
             -h|--help)
                 help
+            ;;
+            --command)
+                COMMAND="$2"
+                INTERACTIVE=""
+                shift
+                shift
             ;;
             -u|--ubuntu-version)
                 UBUNTU_VERSION="$2"
@@ -215,4 +222,4 @@ docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	${DOCKER_HOST_NETWORK} \
 	--cpus=${CPUS} \
 	${QUIRKS} \
-	variscite:${DOCKER_IMAGE}
+	variscite:${DOCKER_IMAGE} "$COMMAND"

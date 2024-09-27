@@ -46,4 +46,9 @@ if [ ! "${ENV_RUN_SCRIPT}" = "" ]; then
     echo "${ENV_RUN_SCRIPT}" >> /home/${USER}/.bashrc
 fi
 
-su - "${USER}"
+# If a command was passed to docker run, execute it as the user. Otherwise, start a login shell.
+if [ -n "$1" ]; then
+    exec su - "${USER}" -c "$@"
+else
+    su - "${USER}"
+fi
