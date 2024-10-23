@@ -180,6 +180,7 @@ set_quirks() {
 parse_args "$@"
 
 readonly DOCKER_IMAGE="yocto-${UBUNTU_VERSION}-${GIT_COMMIT}"
+readonly HOSTNAME=$( echo "$DOCKER_IMAGE" | sed 's/\./-/g')
 
 # Verify qemu-user-static is installed
 if [ ! -f /usr/bin/qemu-aarch64-static ]; then
@@ -215,6 +216,7 @@ docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	-v /usr/src:/usr/src \
 	-v /lib/modules:/lib/modules \
 	-v /linux-kernel:/linux-kernel \
+	--hostname ${HOSTNAME} \
 	${DOCKER_VOLUMES} \
 	${INTERACTIVE} \
 	${ENV_FILE} \
