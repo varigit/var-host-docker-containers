@@ -84,7 +84,7 @@ RUN apt-get install -y \
 
 # Install development utilities
 RUN apt-get update && apt-get install -y \
-     vim tmux
+     vim nano tmux
 
 # Update to latest
 RUN apt-get update && apt-get dist-upgrade -y

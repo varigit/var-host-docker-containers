@@ -78,7 +78,7 @@ RUN curl https://storage.googleapis.com/git-repo-downloads/repo-2.32 > /bin/repo
 
 # Install development utilities
 RUN apt-get update && apt-get install -y \
-     vim tmux
+     vim nano tmux
 
 # Update to latest
 RUN apt-get update && apt-get dist-upgrade -y
