@@ -57,8 +57,32 @@ You may use the sudo command inside the container with these credentials:
 
 # Rebuilding Docker Image
 
-The Docker Image will be built automatically by ./run.sh the first time. Any commits to the GIT repository will cause the image to be rebuilt with the new changes using cache (not necessarily the latest from Ubuntu)
+## Using the container registry
+
+Variscite hosts prebuilt containers in the github registry: ghcr.io/varigit/var-host-docker-containers/yocto-env
+
+To make sure you're always pulling the latest version of the container, use the `-b` argument:
+
+```
+./run.sh -b
+```
+
+## Using a local image
+
+It may be desirable to build and use a local image if you need to add packages that are not in Variscite's registry. Do this by using the `-l` argument:
+
+```
+./run.sh -l
+```
+
+You can rebuild the local image by passing the `-b` argument:
+
+```
+./run.sh -l -b
+```
+
+The Docker Image will be built automatically by `./run.sh -l` the first time. Any commits to the GIT repository will cause the image to be rebuilt with the new changes using cache (not necessarily the latest from Ubuntu)
 
 To force the container to be rebuilt with the latest from Ubuntu, pass the `-f` argument:
 
-```$ ./run.sh -f ...```
+```$ ./run.sh -l -f ...```

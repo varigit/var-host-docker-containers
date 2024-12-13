@@ -5,6 +5,7 @@
 readonly FILE_SCRIPT="$(basename "$0")"
 readonly DIR_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 readonly GIT_COMMIT="$(git --git-dir=${DIR_SCRIPT}/.git log -1 --format=%h)"
+readonly VARISCITE_REGISTRY="ghcr.io/varigit/var-host-docker-containers/yocto-env"
 
 cd ${DIR_SCRIPT}
 
@@ -19,13 +20,16 @@ BUILD_CACHE=""
 CPUS="0.000"
 QUIRKS=""
 
+# Flag indicating local image usage
+LOCAL_FLAG=0
+
 build_image() {
     DOCKERFILE="$1"
     if [ ! -f "${DIR_SCRIPT}/${DOCKERFILE}" ]; then
         echo "${DIR_SCRIPT}/${DOCKERFILE} not found"
         exit -1
     fi
-    docker build ${BUILD_CACHE} -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT} -f ${DOCKERFILE}
+    docker build ${BUILD_CACHE} -t "${IMAGE_REPO}:${DOCKER_IMAGE}" ${DIR_SCRIPT} -f ${DOCKERFILE}
 }
 
 array_contains () {
@@ -57,6 +61,7 @@ help() {
     echo " -c --cpus                Limit the number of CPUs available to the container, default is ${CPUS}, which will use all available CPUs"
     echo " -h --help                Display this Help Message"
     echo " --command                Run a command inside the docker container, implies -n"
+    echo " -l --local               Build and use a local Docker image (tagged with GIT_COMMIT) instead of pulling"
     echo
     echo "Example - Run Interactive Shell In Current Directory:"
     echo "./run.sh"
@@ -156,6 +161,10 @@ parse_args() {
                 shift
                 shift
             ;;
+            -l|--local)
+                LOCAL_FLAG=1
+                shift
+            ;;
             *)    # unknown option
                 echo "Unknown option: $1"
                 help
@@ -179,7 +188,7 @@ set_quirks() {
 
 parse_args "$@"
 
-readonly DOCKER_IMAGE="yocto-${UBUNTU_VERSION}-${GIT_COMMIT}"
+readonly DOCKER_IMAGE="${UBUNTU_VERSION}-${GIT_COMMIT}"
 readonly HOSTNAME=$( echo "$DOCKER_IMAGE" | sed 's/\./-/g')
 
 # Verify qemu-user-static is installed
@@ -188,11 +197,26 @@ if [ ! -f /usr/bin/qemu-aarch64-static ]; then
     exit -1
 fi
 
-# Build container if the image does not exist, the cache needs to be rebuilt, or the build flag is set
-if ! docker images | grep -q "${DOCKER_IMAGE}" \
-    || [ -n "$BUILD_CACHE" ] \
-    || [ $BUILD_IMAGE_FLAG -eq 1 ]; then
-    build_image "Dockerfile_${UBUNTU_VERSION}"
+# Build or pull the image
+if [ $LOCAL_FLAG -eq 1 ]; then
+    # Build local container if the image does not exist, the cache needs to be rebuilt, or the build flag is set
+    readonly IMAGE_REPO="variscite"
+
+    if ! docker images | awk -v IMAGE_REPO=${IMAGE_REPO} '{ if ($1 == IMAGE_REPO) print $2}' | grep -q "${DOCKER_IMAGE}" \
+        || [ -n "$BUILD_CACHE" ] \
+        || [ $BUILD_IMAGE_FLAG -eq 1 ]; then
+        echo "Building Dockerfile_${UBUNTU_VERSION}"
+        build_image "Dockerfile_${UBUNTU_VERSION}"
+    fi
+else
+    # Pull the image if the image does not exist or the build flag is set
+    readonly IMAGE_REPO="${VARISCITE_REGISTRY}"
+
+    if ! docker images | awk -v IMAGE_REPO=${IMAGE_REPO} '{ if ($1 == IMAGE_REPO) print $2}' | grep -q "${DOCKER_IMAGE}" \
+        || [ $BUILD_IMAGE_FLAG -eq 1 ]; then
+        echo "Pulling ${IMAGE_REPO}:${DOCKER_IMAGE}"
+        docker pull "${IMAGE_REPO}:${DOCKER_IMAGE}"
+    fi
 fi
 
 uid=$(id -u ${USER})
@@ -224,4 +248,4 @@ docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	${DOCKER_HOST_NETWORK} \
 	--cpus=${CPUS} \
 	${QUIRKS} \
-	variscite:${DOCKER_IMAGE} "$COMMAND"
+	${IMAGE_REPO}:${DOCKER_IMAGE} "$COMMAND"
