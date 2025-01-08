@@ -5,6 +5,8 @@ on: push
 jobs:
   build:
     name: Build image '${{ matrix.version }}'
+    
+    if: ${{ github.repository_owner  == 'varigit' }}
 
     strategy:
       matrix:
