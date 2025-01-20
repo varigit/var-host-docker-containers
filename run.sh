@@ -5,6 +5,7 @@
 readonly FILE_SCRIPT="$(basename "$0")"
 readonly DIR_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 readonly GIT_COMMIT="$(git --git-dir=${DIR_SCRIPT}/.git log -1 --format=%h)"
+readonly PKG_REGISTRY="ghcr.io/varigit/var-host-docker-containers/yocto-env"
 
 cd ${DIR_SCRIPT}
 
@@ -25,7 +26,7 @@ build_image() {
         echo "${DIR_SCRIPT}/${DOCKERFILE} not found"
         exit -1
     fi
-    docker build ${BUILD_CACHE} -t "variscite:${DOCKER_IMAGE}" ${DIR_SCRIPT} -f ${DOCKERFILE}
+    docker build ${BUILD_CACHE} -t "${PKG_REGISTRY}:${DOCKER_IMAGE}" ${DIR_SCRIPT} -f ${DOCKERFILE}
 }
 
 array_contains () {
@@ -179,7 +180,7 @@ set_quirks() {
 
 parse_args "$@"
 
-readonly DOCKER_IMAGE="yocto-${UBUNTU_VERSION}-${GIT_COMMIT}"
+readonly DOCKER_IMAGE="${UBUNTU_VERSION}-latest"
 readonly HOSTNAME=$( echo "$DOCKER_IMAGE" | sed 's/\./-/g')
 
 # Verify qemu-user-static is installed
@@ -188,11 +189,16 @@ if [ ! -f /usr/bin/qemu-aarch64-static ]; then
     exit -1
 fi
 
-# Build container if the image does not exist, the cache needs to be rebuilt, or the build flag is set
-if ! docker images | grep -q "${DOCKER_IMAGE}" \
-    || [ -n "$BUILD_CACHE" ] \
-    || [ $BUILD_IMAGE_FLAG -eq 1 ]; then
-    build_image "Dockerfile_${UBUNTU_VERSION}"
+# Pull the image or Build it if the image does not exist, the cache needs to be rebuilt, or the build flag is set
+if ! docker images | grep -q "${DOCKER_IMAGE}"; then
+    if [ -z "$BUILD_CACHE" ] && [ $BUILD_IMAGE_FLAG -ne 1 ]; then
+        docker manifest inspect "${PKG_REGISTRY}:${DOCKER_IMAGE}" > /dev/null 2>&1
+        if [ $? -eq 0 ]; then
+            docker pull "${PKG_REGISTRY}:${DOCKER_IMAGE}"
+        fi
+    else
+        build_image "Dockerfile_${UBUNTU_VERSION}"
+    fi
 fi
 
 uid=$(id -u ${USER})
@@ -224,4 +230,4 @@ docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	${DOCKER_HOST_NETWORK} \
 	--cpus=${CPUS} \
 	${QUIRKS} \
-	variscite:${DOCKER_IMAGE} "$COMMAND"
+	${PKG_REGISTRY}:${DOCKER_IMAGE} "$COMMAND"
