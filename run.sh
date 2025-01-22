@@ -1,6 +1,8 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
 # SPDX-License-Identifier: (GPL-2.0+ OR MIT)
 # Copyright 2021 Variscite Ltd.
+
+set -e
 
 readonly FILE_SCRIPT="$(basename "$0")"
 readonly DIR_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
