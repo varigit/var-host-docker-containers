@@ -195,8 +195,7 @@ readonly HOSTNAME=$( echo "$DOCKER_IMAGE" | sed 's/\./-/g')
 
 # Verify qemu-user-static is installed
 if [ ! -f /usr/bin/qemu-aarch64-static ]; then
-    echo "Error: Please install qemu-user-static on host, required for debian"
-    exit -1
+    echo "Warning: qemu-user-static is required on the host for some debian builds"
 fi
 
 # Build or pull the image
