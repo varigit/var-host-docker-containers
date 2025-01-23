@@ -6,7 +6,7 @@ set -e
 
 readonly FILE_SCRIPT="$(basename "$0")"
 readonly DIR_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-readonly GIT_COMMIT="$(git --git-dir=${DIR_SCRIPT}/.git log -1 --format=%h)"
+readonly GIT_COMMIT="$(git --git-dir=${DIR_SCRIPT}/.git log -1 --format=%H | cut -c1-8)"
 readonly VARISCITE_REGISTRY="ghcr.io/varigit/var-host-docker-containers/yocto-env"
 
 cd ${DIR_SCRIPT}
