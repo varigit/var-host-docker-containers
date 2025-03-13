@@ -13,7 +13,7 @@ readonly VARISCITE_REGISTRY="ghcr.io/varigit/var-host-docker-containers/yocto-en
 
 UBUNTU_VERSIONS_SUPPORTED=("22.04" "20.04" "18.04" "16.04" "14.04")
 UBUNTU_VERSION="20.04"
-WORKDIR=$(pwd)
+WORKDIR="$(pwd)"
 SCRIPT=""
 INTERACTIVE="-it"
 DOCKER_VOLUMES=""
@@ -56,7 +56,7 @@ help() {
     echo " -f --force-build         Build Docker Image with --no-cache, will include latest from Ubuntu"
     echo " -e --env                 Docker Environment File"
     echo " -n --non-interactive     Run container and exit without interactive shell"
-    echo " -w --workdir             Docker Working Directory to Mount, default is ${WORKDIR}"
+    echo " -w --workdir             Docker Working Directory to Mount, default is \"${WORKDIR}\""
     echo " -v --volume              Docker Volumes to Mount, e.g. -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
     echo " -p --privledged          Run docker in privledged mode, allowing access to all devices"
     echo " --host-network           Run container with host network mode"
@@ -117,10 +117,10 @@ parse_args() {
                 if [ "$WORKDIR" = "" ]; then
                     help
                 fi
-                if [ ! -d $WORKDIR ]; then
-                    echo "Error: ${WORKDIR} doesn't exist"
+                if [ ! -d "$WORKDIR" ]; then
+                    echo "Error: \"${WORKDIR}\" doesn't exist"
                     echo "Please verify path and run:"
-                    echo "mkdir -p ${WORKDIR}"
+                    echo "mkdir -p \"${WORKDIR}\""
                     exit -1
                 fi
                 shift # past argument
@@ -235,7 +235,7 @@ set_quirks
 
 docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	-v ~/.ssh:/home/vari/.ssh \
-	-v ${WORKDIR}:/workdir \
+	-v "${WORKDIR}":/workdir \
 	-v ~/.gitconfig:/tmp/host_gitconfig \
 	-v /opt:/opt \
 	-v /usr/src:/usr/src \
