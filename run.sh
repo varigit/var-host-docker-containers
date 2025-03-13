@@ -6,14 +6,14 @@ set -e
 
 readonly FILE_SCRIPT="$(basename "$0")"
 readonly DIR_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-readonly GIT_COMMIT="$(git --git-dir=${DIR_SCRIPT}/.git log -1 --format=%H | cut -c1-8)"
-readonly VARISCITE_REGISTRY="ghcr.io/varigit/var-host-docker-containers/yocto-env"
+cd "${DIR_SCRIPT}"
 
-cd ${DIR_SCRIPT}
+readonly GIT_COMMIT="$(git log -1 --format=%H | cut -c1-8)"
+readonly VARISCITE_REGISTRY="ghcr.io/varigit/var-host-docker-containers/yocto-env"
 
 UBUNTU_VERSIONS_SUPPORTED=("22.04" "20.04" "18.04" "16.04" "14.04")
 UBUNTU_VERSION="20.04"
-WORKDIR=$(pwd)
+WORKDIR="$(pwd)"
 SCRIPT=""
 INTERACTIVE="-it"
 DOCKER_VOLUMES=""
@@ -31,7 +31,7 @@ build_image() {
         echo "${DIR_SCRIPT}/${DOCKERFILE} not found"
         exit -1
     fi
-    docker build ${BUILD_CACHE} -t "${IMAGE_REPO}:${DOCKER_IMAGE}" ${DIR_SCRIPT} -f ${DOCKERFILE}
+    docker build ${BUILD_CACHE} -t "${IMAGE_REPO}:${DOCKER_IMAGE}" "${DIR_SCRIPT}" -f ${DOCKERFILE}
 }
 
 array_contains () {
@@ -48,7 +48,7 @@ array_contains () {
 
 help() {
     echo
-    echo "Usage: ${DIR_SCRIPT}/${FILE_SCRIPT} <options>"
+    echo "Usage: \"${DIR_SCRIPT}\"/${FILE_SCRIPT} <options>"
     echo
     echo " optional:"
     echo " -u --ubuntu-version      Ubuntu Version: ${UBUNTU_VERSIONS_SUPPORTED[@]}"
@@ -56,7 +56,7 @@ help() {
     echo " -f --force-build         Build Docker Image with --no-cache, will include latest from Ubuntu"
     echo " -e --env                 Docker Environment File"
     echo " -n --non-interactive     Run container and exit without interactive shell"
-    echo " -w --workdir             Docker Working Directory to Mount, default is ${WORKDIR}"
+    echo " -w --workdir             Docker Working Directory to Mount, default is \"${WORKDIR}\""
     echo " -v --volume              Docker Volumes to Mount, e.g. -v /opt/yocto_downloads_docker:/opt/yocto_downloads -v /opt/yocto_sstate_docker:/opt/yocto_sstate"
     echo " -p --privledged          Run docker in privledged mode, allowing access to all devices"
     echo " --host-network           Run container with host network mode"
@@ -117,10 +117,10 @@ parse_args() {
                 if [ "$WORKDIR" = "" ]; then
                     help
                 fi
-                if [ ! -d $WORKDIR ]; then
-                    echo "Error: ${WORKDIR} doesn't exist"
+                if [ ! -d "$WORKDIR" ]; then
+                    echo "Error: \"${WORKDIR}\" doesn't exist"
                     echo "Please verify path and run:"
-                    echo "mkdir -p ${WORKDIR}"
+                    echo "mkdir -p \"${WORKDIR}\""
                     exit -1
                 fi
                 shift # past argument
@@ -139,7 +139,7 @@ parse_args() {
                 ENV_FILE=$2
                 if [ ! -f "${ENV_FILE}" ]; then
                     echo "Error: ${ENV_FILE} Not Found"
-                    echo "Error: ${DIR_SCRIPT}/env/${ENV_FILE} Not Found either"
+                    echo "Error: \"${DIR_SCRIPT}\"/env/${ENV_FILE} Not Found either"
                     help
                 fi
                 ENV_FILE="--env-file=${ENV_FILE}"
@@ -235,7 +235,7 @@ set_quirks
 
 docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	-v ~/.ssh:/home/vari/.ssh \
-	-v ${WORKDIR}:/workdir \
+	-v "${WORKDIR}":/workdir \
 	-v ~/.gitconfig:/tmp/host_gitconfig \
 	-v /opt:/opt \
 	-v /usr/src:/usr/src \
