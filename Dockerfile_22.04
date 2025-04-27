@@ -68,7 +68,7 @@ RUN apt-get update && apt-get install -y \
      libgl1-mesa-dev libxml2-utils xsltproc unzip bc \
      uuid uuid-dev zlib1g-dev liblz-dev liblzo2-2 liblzo2-dev lzop git curl \
      u-boot-tools mtd-utils android-sdk-libsparse-utils device-tree-compiler gdisk m4 \
-     openjdk-8-jdk
+     openjdk-8-jdk pahole
 
 RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+rx /bin/repo
 
