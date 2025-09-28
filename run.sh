@@ -167,6 +167,11 @@ parse_args() {
                 LOCAL_FLAG=1
                 shift
             ;;
+            -a|--android)
+                ANDROID_BUILD_VERSION="$2"
+                shift
+                shift
+            ;;
             *)    # unknown option
                 echo "Unknown option: $1"
                 help
@@ -190,24 +195,31 @@ set_quirks() {
 
 parse_args "$@"
 
-readonly DOCKER_IMAGE="${UBUNTU_VERSION}-${GIT_COMMIT}"
+# Build Docker image name with Android suffix if needed
+if [ -n "$ANDROID_BUILD_VERSION" ]; then
+    readonly DOCKER_IMAGE="${UBUNTU_VERSION}-${GIT_COMMIT}-android-${ANDROID_BUILD_VERSION}"
+else
+    readonly DOCKER_IMAGE="${UBUNTU_VERSION}-${GIT_COMMIT}"
+ fi
 readonly HOSTNAME=$( echo "$DOCKER_IMAGE" | sed 's/\./-/g')
-
-# Verify qemu-user-static is installed
-if [ ! -f /usr/bin/qemu-aarch64-static ]; then
-    echo "Warning: qemu-user-static is required on the host for some debian builds"
-fi
 
 # Build or pull the image
 if [ $LOCAL_FLAG -eq 1 ]; then
     # Build local container if the image does not exist, the cache needs to be rebuilt, or the build flag is set
     readonly IMAGE_REPO="variscite"
 
+    # Generic build image handling - DOCKER_IMAGE already includes Android suffix if needed
+    if [ -n "$ANDROID_BUILD_VERSION" ]; then
+        DOCKERFILE_NAME="Dockerfile_${UBUNTU_VERSION}_android_${ANDROID_BUILD_VERSION}"
+    else
+        DOCKERFILE_NAME="Dockerfile_${UBUNTU_VERSION}"
+    fi
+
     if ! docker images | awk -v IMAGE_REPO=${IMAGE_REPO} '{ if ($1 == IMAGE_REPO) print $2}' | grep -q "${DOCKER_IMAGE}" \
         || [ -n "$BUILD_CACHE" ] \
         || [ $BUILD_IMAGE_FLAG -eq 1 ]; then
-        echo "Building Dockerfile_${UBUNTU_VERSION}"
-        build_image "Dockerfile_${UBUNTU_VERSION}"
+        echo "Building ${DOCKERFILE_NAME}"
+        build_image "${DOCKERFILE_NAME}"
     fi
 else
     # Pull the image if the image does not exist or the build flag is set
@@ -237,7 +249,6 @@ docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	-v ~/.ssh:/home/vari/.ssh \
 	-v "${WORKDIR}":/workdir \
 	-v ~/.gitconfig:/tmp/host_gitconfig \
-	-v /opt:/opt \
 	-v /usr/src:/usr/src \
 	-v /lib/modules:/lib/modules \
 	-v /linux-kernel:/linux-kernel \
