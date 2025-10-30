@@ -86,6 +86,10 @@ ENV ENV_RUN_SCRIPT="export CLANG_PATH=/opt/prebuilt-android-clang; \
     export LIBCLANG_PATH=/opt/prebuilt-android-clang/clang-r510928/lib; \
     export AARCH64_GCC_CROSS_COMPILE=/opt/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH64}/bin/aarch64-none-linux-gnu-"
 
+# Install file transfer tools
+RUN apt-get update && apt-get install -y \
+     awscli
+
 # Update to latest
 RUN apt-get update && apt-get dist-upgrade -y
 

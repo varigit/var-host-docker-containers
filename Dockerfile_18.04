@@ -80,6 +80,10 @@ RUN curl https://storage.googleapis.com/git-repo-downloads/repo-2.32 > /bin/repo
 RUN apt-get update && apt-get install -y \
      vim nano tmux
 
+# Install file transfer tools
+RUN apt-get update && apt-get install -y \
+     awscli
+
 # Update to latest
 RUN apt-get update && apt-get dist-upgrade -y
 

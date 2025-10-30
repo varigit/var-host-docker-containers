@@ -246,6 +246,7 @@ fi
 set_quirks
 
 docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
+	-v ~/.aws:/home/vari/.aws \
 	-v ~/.ssh:/home/vari/.ssh \
 	-v "${WORKDIR}":/workdir \
 	-v ~/.gitconfig:/tmp/host_gitconfig \

@@ -82,6 +82,10 @@ RUN apt-get update && apt-get install -y \
      python3-yaml swig gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu \
      libgnutls28-dev u-boot-tools
 
+# Install file transfer tools
+RUN apt-get update && apt-get install -y \
+     awscli
+
 # Update to latest
 RUN apt-get update && apt-get dist-upgrade -y
 

@@ -81,6 +81,10 @@ RUN apt-get update && apt-get install -y \
      python3-cryptography python3-jsonschema python3-pyelftools \
      python3-yaml swig gcc-arm-linux-gnueabihf gcc-aarch64-linux-gnu
 
+# Install file transfer tools
+RUN apt-get update && apt-get install -y \
+     awscli
+
 # Update to latest
 RUN apt-get update && apt-get dist-upgrade -y
 
