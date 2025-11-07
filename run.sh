@@ -17,7 +17,7 @@ WORKDIR="$(pwd)"
 SCRIPT=""
 INTERACTIVE="-it"
 DOCKER_VOLUMES=""
-PRIVLEGED=""
+PRIVILEGED=""
 BUILD_CACHE=""
 CPUS="0.000"
 QUIRKS=""
@@ -146,8 +146,8 @@ parse_args() {
                 shift # past argument
                 shift # past value
             ;;
-            -p|--privledged)
-                PRIVLEGED=" --privileged"
+            -p|--privileged)
+                PRIVILEGED=" --privileged"
                 shift
             ;;
             --host-network)
@@ -257,7 +257,7 @@ docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	${DOCKER_VOLUMES} \
 	${INTERACTIVE} \
 	${ENV_FILE} \
-	${PRIVLEGED} \
+	${PRIVILEGED} \
 	${DOCKER_HOST_NETWORK} \
 	--cpus=${CPUS} \
 	${QUIRKS} \
