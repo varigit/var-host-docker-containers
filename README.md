@@ -18,7 +18,12 @@ From a brand new Ubuntu installation:
 2b. (If using locally-built kernel) ensure you've run `make headers_install` and `make modules_install` in your kernel source tree.
 3. Give permissions to run docker without sudo `$ sudo usermod -aG docker ${USER}`
 4. Logout and Login again for permissions to take effect
-5. Clone this repository
+5. If the host machine is x86-64, enable execution of foreign architecture binaries:
+```
+sudo apt install qemu-user-static binfmt-support
+sudo update-binfmts --enable qemu-aarch64
+```
+6. Clone this repository
 
 # Usage
 
