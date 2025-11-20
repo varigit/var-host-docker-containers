@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: (GPL-2.0+ OR MIT)
-# Copyright 2021 Variscite Ltd.
+# Copyright 2021 - 2025 Variscite Ltd.
 
 FROM ubuntu:20.04
 MAINTAINER Nate Drude "nate.d@variscite.com"
@@ -34,6 +34,7 @@ RUN apt-get update && apt-get install -y \
     android-sdk-libsparse-utils android-sdk-ext4-utils device-tree-compiler \
     gdisk m4 make libssl-dev libghc-gnutls-dev swig libdw-dev dwarves \
     python bc cpio tar lz4 rsync ninja-build clang xxd \
+    liblz-dev libgnutls28-dev liblz4-tool libelf-dev efitools \
     && ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
     && dpkg-reconfigure -f noninteractive tzdata
 
@@ -56,34 +57,33 @@ ENV AARCH32_GCC_CROSS_COMPILE=/opt/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH32}/bin/a
 ENV ARMGCC_DIR=/opt/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH32}
 
 # Create directories with appropriate permissions
-RUN mkdir -p /opt/prebuilt-android-clang /opt/prebuilt-android-kernel-build-tools \
-    /opt/prebuilt-android-rust /opt/prebuilt-android-clang-tools \
-    && chmod 777 /opt/prebuilt-android-clang /opt/prebuilt-android-kernel-build-tools \
-    /opt/prebuilt-android-rust /opt/prebuilt-android-clang-tools
+RUN mkdir -p /opt/android-kernel-prebuilts-6.12/clang/host/linux-x86 /opt/android-kernel-prebuilts-6.12/kernel-build-tools \
+    /opt/android-kernel-prebuilts-6.12/rust /opt/android-kernel-prebuilts-6.12/clang-tools \
+    && chmod 777 /opt/android-kernel-prebuilts-6.12/clang/host/linux-x86 /opt/android-kernel-prebuilts-6.12/kernel-build-tools \
+    /opt/android-kernel-prebuilts-6.12/rust /opt/android-kernel-prebuilts-6.12/clang-tools
 
-RUN git clone -b main-kernel-build-2024 --single-branch --depth 1 https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 /opt/prebuilt-android-clang \
-  && cd /opt/prebuilt-android-clang \
-  && git fetch origin 7061673283909f372f4938e45149d23bd10cbd40 \
-  && git checkout 7061673283909f372f4938e45149d23bd10cbd40
+RUN git clone -b main-kernel --single-branch --depth 1 https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 /opt/android-kernel-prebuilts-6.12/clang/host/linux-x86 \
+  && cd /opt/android-kernel-prebuilts-6.12/clang/host/linux-x86 \
+  && git fetch origin 66acdd82ee62e4aaa4248f03191c59dfed9db193 \
+  && git checkout 66acdd82ee62e4aaa4248f03191c59dfed9db193
 
-RUN git clone https://android.googlesource.com/kernel/prebuilts/build-tools --single-branch -b main-kernel-build-2024 /opt/prebuilt-android-kernel-build-tools \
-  && cd /opt/prebuilt-android-kernel-build-tools \
-  && git fetch origin b46264b70e3cdf70d08c9ae2df6ea3002b242ebc \
-  && git checkout b46264b70e3cdf70d08c9ae2df6ea3002b242ebc
+RUN git clone -b main --single-branch --depth 1 https://android.googlesource.com/kernel/prebuilts/build-tools /opt/android-kernel-prebuilts-6.12/kernel-build-tools \
+  && cd /opt/android-kernel-prebuilts-6.12/kernel-build-tools \
+  && git fetch origin 3c5e4f14b451ec85167c38b917d2459687abd7f4 \
+  && git checkout 3c5e4f14b451ec85167c38b917d2459687abd7f4
 
-RUN git clone -b main-kernel-build-2024 --single-branch --depth 1 https://android.googlesource.com/platform/prebuilts/rust /opt/prebuilt-android-rust \
-  && cd /opt/prebuilt-android-rust \
-  && git fetch origin 442511af884f074018466f85b4daadd4b0ac0050 \
-  && git checkout 442511af884f074018466f85b4daadd4b0ac0050
+RUN git clone -b main-kernel --single-branch --depth 1 https://android.googlesource.com/platform/prebuilts/rust /opt/android-kernel-prebuilts-6.12/rust \
+  && cd /opt/android-kernel-prebuilts-6.12/rust \
+  && git fetch origin 5156e7f81ae254c79ee736e44c960e75ad685c67 \
+  && git checkout 5156e7f81ae254c79ee736e44c960e75ad685c67
 
-RUN git clone -b main-kernel-build-2024 --single-branch --depth 1 https://android.googlesource.com/platform/prebuilts/clang-tools /opt/prebuilt-android-clang-tools \
-  && cd /opt/prebuilt-android-clang-tools \
-  && git fetch origin 1634c6a556d1f2c24897bf74156c6449486e8941 \
-  && git checkout 1634c6a556d1f2c24897bf74156c6449486e8941
+RUN git clone -b main --single-branch --depth 1 https://android.googlesource.com/platform/prebuilts/clang-tools /opt/android-kernel-prebuilts-6.12/clang-tools \
+  && cd /opt/android-kernel-prebuilts-6.12/clang-tools \
+  && git fetch origin 17329f6590e2872dcf04a0c96a176be089470cd9 \
+  && git checkout 17329f6590e2872dcf04a0c96a176be089470cd9
 
-ENV ENV_RUN_SCRIPT="export CLANG_PATH=/opt/prebuilt-android-clang; \
-    export PATH=/opt/prebuilt-android-kernel-build-tools/linux-x86/bin:/opt/prebuilt-android-rust/linux-x86/1.73.0b/bin:/opt/prebuilt-android-clang-tools/linux-x86/bin:\$PATH; \
-    export LIBCLANG_PATH=/opt/prebuilt-android-clang/clang-r510928/lib; \
+ENV ENV_RUN_SCRIPT="export KERNEL_PREBUILTS_PATH=/opt/android-kernel-prebuilts-6.12; \
+    export AARCH32_GCC_CROSS_COMPILE=/opt/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-; \
     export AARCH64_GCC_CROSS_COMPILE=/opt/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH64}/bin/aarch64-none-linux-gnu-"
 
 # Update to latest
