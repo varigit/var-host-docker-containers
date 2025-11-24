@@ -46,10 +46,6 @@ RUN apt-get update && apt-get install -y \
      gawk curl git-core diffstat unzip p7zip gcc-multilib g++-multilib \
      build-essential chrpath libsdl1.2-dev xterm gperf bison texinfo util-linux
 
-# B2Qt git-lfs
-RUN apt-get install -y git-lfs || \
-     curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && apt-get install -y git-lfs
-
 # Debian
 RUN apt-get update && apt-get install -y \
      binfmt-support qemu qemu-user-static debootstrap kpartx \
