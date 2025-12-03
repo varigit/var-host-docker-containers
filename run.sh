@@ -8,7 +8,7 @@ readonly FILE_SCRIPT="$(basename "$0")"
 readonly DIR_SCRIPT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 cd "${DIR_SCRIPT}"
 
-readonly GIT_COMMIT="$(git log -1 --format=%H | cut -c1-8)"
+GIT_COMMIT="$(git log -1 --format=%H | cut -c1-8)"
 readonly VARISCITE_REGISTRY="ghcr.io/varigit/var-host-docker-containers/yocto-env"
 
 UBUNTU_VERSIONS_SUPPORTED=("22.04" "20.04" "18.04" "16.04" "14.04")
@@ -64,6 +64,7 @@ help() {
     echo " -h --help                Display this Help Message"
     echo " --command                Run a command inside the docker container, implies -n"
     echo " -l --local               Build and use a local Docker image (tagged with GIT_COMMIT) instead of pulling"
+    echo " --latest                 Use image tagged with 'latest' instead of GIT_COMMIT \"$GIT_COMMIT\""
     echo
     echo "Example - Run Interactive Shell In Current Directory:"
     echo "./run.sh"
@@ -165,6 +166,10 @@ parse_args() {
             ;;
             -l|--local)
                 LOCAL_FLAG=1
+                shift
+            ;;
+            --latest)
+                GIT_COMMIT=latest
                 shift
             ;;
             -a|--android)
