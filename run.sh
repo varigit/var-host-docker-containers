@@ -25,13 +25,19 @@ QUIRKS=""
 # Flag indicating local image usage
 LOCAL_FLAG=0
 
+# Set SUDO="sudo" to run all docker commands as root,
+# or SUDO="" to run as normal user.  Note: recent
+# bitbake and this script assume that $USER is *not*
+# root, so SUDO="sudo" is recommended
+SUDO="sudo"
+
 build_image() {
     DOCKERFILE="$1"
     if [ ! -f "${DIR_SCRIPT}/${DOCKERFILE}" ]; then
         echo "${DIR_SCRIPT}/${DOCKERFILE} not found"
         exit -1
     fi
-    docker build ${BUILD_CACHE} -t "${IMAGE_REPO}:${DOCKER_IMAGE}" "${DIR_SCRIPT}" -f ${DOCKERFILE}
+    $SUDO docker build ${BUILD_CACHE} -t "${IMAGE_REPO}:${DOCKER_IMAGE}" "${DIR_SCRIPT}" -f ${DOCKERFILE}
 }
 
 array_contains () {
@@ -215,7 +221,7 @@ if [ $LOCAL_FLAG -eq 1 ]; then
         DOCKERFILE_NAME="Dockerfile_${UBUNTU_VERSION}"
     fi
 
-    if ! docker images | awk -v IMAGE_REPO=${IMAGE_REPO} '{ if ($1 == IMAGE_REPO) print $2}' | grep -q "${DOCKER_IMAGE}" \
+    if ! $SUDO docker images | awk -v IMAGE_REPO=${IMAGE_REPO} '{ if ($1 == IMAGE_REPO) print $2}' | grep -q "${DOCKER_IMAGE}" \
         || [ -n "$BUILD_CACHE" ] \
         || [ $BUILD_IMAGE_FLAG -eq 1 ]; then
         echo "Building ${DOCKERFILE_NAME}"
@@ -225,10 +231,10 @@ else
     # Pull the image if the image does not exist or the build flag is set
     readonly IMAGE_REPO="${VARISCITE_REGISTRY}"
 
-    if ! docker images | awk -v IMAGE_REPO=${IMAGE_REPO} '{ if ($1 == IMAGE_REPO) print $2}' | grep -q "${DOCKER_IMAGE}" \
+    if ! $SUDO docker images | awk -v IMAGE_REPO=${IMAGE_REPO} '{ if ($1 == IMAGE_REPO) print $2}' | grep -q "${DOCKER_IMAGE}" \
         || [ $BUILD_IMAGE_FLAG -eq 1 ]; then
         echo "Pulling ${IMAGE_REPO}:${DOCKER_IMAGE}"
-        docker pull "${IMAGE_REPO}:${DOCKER_IMAGE}"
+        $SUDO docker pull "${IMAGE_REPO}:${DOCKER_IMAGE}"
     fi
 fi
 
@@ -245,7 +251,7 @@ fi
 
 set_quirks
 
-docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
+$SUDO docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	-v ~/.aws:/home/vari/.aws \
 	-v ~/.ssh:/home/vari/.ssh \
 	-v "${WORKDIR}":/workdir \
