@@ -83,7 +83,7 @@ RUN apt-get update && apt-get install -y \
      libgnutls28-dev u-boot-tools yamllint
 
 RUN python3 -m pip install --upgrade pip && \
-    python3 -m pip install spsdk
+    python3 -m pip install spsdk spsdk[pqc]
 
 # Install file transfer tools
 RUN apt-get update && apt-get install -y \
