@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y \
     android-sdk-libsparse-utils android-sdk-ext4-utils device-tree-compiler \
     gdisk m4 make libssl-dev libghc-gnutls-dev swig libdw-dev dwarves \
     python bc cpio tar lz4 rsync ninja-build clang xxd \
-    liblz-dev libgnutls28-dev liblz4-tool libelf-dev efitools \
+    liblz-dev libgnutls28-dev liblz4-tool libelf-dev efitools cmake \
     && ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
     && dpkg-reconfigure -f noninteractive tzdata
 
