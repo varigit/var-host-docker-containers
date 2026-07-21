@@ -250,9 +250,6 @@ docker run ${EXTRA_ARGS} --rm -e HOST_USER_ID=$uid -e HOST_USER_GID=$gid \
 	-v ~/.ssh:/home/vari/.ssh \
 	-v "${WORKDIR}":/workdir \
 	-v ~/.gitconfig:/tmp/host_gitconfig \
-	-v /usr/src:/usr/src \
-	-v /lib/modules:/lib/modules \
-	-v /linux-kernel:/linux-kernel \
 	--hostname ${HOSTNAME} \
 	${DOCKER_VOLUMES} \
 	${INTERACTIVE} \
