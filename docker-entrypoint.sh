@@ -32,12 +32,6 @@ chown ${USER}:${USER} /home/vari/.gitconfig
 # allow user to run sudo
 adduser ${USER} sudo
 
-# Make sure current Linux Headers are installed
-# Required for nxp-wlan-sdk yocto recipe
-if [ ! -d "/lib/modules/$(uname -r)" ]; then
-    echo ubuntu | sudo -S sudo apt install linux-headers-$(uname -r) -y
-fi
-
 #change to /workdir after login
 echo "cd /workdir" > /home/${USER}/.bashrc
 
