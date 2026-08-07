@@ -215,7 +215,7 @@ if [ $LOCAL_FLAG -eq 1 ]; then
         DOCKERFILE_NAME="Dockerfile_${UBUNTU_VERSION}"
     fi
 
-    if ! docker images | awk -v IMAGE_REPO=${IMAGE_REPO} '{ if ($1 == IMAGE_REPO) print $2}' | grep -q "${DOCKER_IMAGE}" \
+    if ! docker image inspect "${IMAGE_REPO}:${DOCKER_IMAGE}" >/dev/null 2>&1 \
         || [ -n "$BUILD_CACHE" ] \
         || [ $BUILD_IMAGE_FLAG -eq 1 ]; then
         echo "Building ${DOCKERFILE_NAME}"
