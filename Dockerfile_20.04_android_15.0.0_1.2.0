@@ -33,7 +33,7 @@ RUN apt-get update && apt-get install -y \
     liblzo2-2 liblzo2-dev lzop git u-boot-tools mtd-utils \
     android-sdk-libsparse-utils android-sdk-ext4-utils device-tree-compiler \
     gdisk m4 make libssl-dev libghc-gnutls-dev swig libdw-dev dwarves \
-    python bc cpio tar lz4 rsync ninja-build clang xxd \
+    python bc cpio tar lz4 zstd rsync ninja-build clang xxd \
     && ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
     && dpkg-reconfigure -f noninteractive tzdata
 
