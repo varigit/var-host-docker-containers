@@ -1,0 +1,101 @@
+# SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+# Copyright 2021 - 2026 Variscite Ltd.
+
+FROM ubuntu:22.04
+LABEL description="Variscite Android 16.0.0_2.0.0 build environment"
+
+RUN apt-get update
+RUN apt-get install -y sudo openssl apt-utils
+
+WORKDIR /workdir
+
+# Define username and temporary uid and gid
+ENV USER=vari USER_ID=1000 USER_GID=1000
+
+# now creating user, change password to 'ubuntu'
+RUN groupadd --gid "${USER_GID}" "${USER}" && \
+    useradd \
+      --uid ${USER_ID} \
+      --gid ${USER_GID} \
+      --create-home \
+      --shell /bin/bash \
+      --password $(openssl passwd -1 ubuntu) \
+      ${USER}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Android
+RUN apt-get update && apt-get install -y \
+    ca-certificates xz-utils tzdata git-core gnupg flex bison apt-utils build-essential zip curl \
+    zlib1g-dev liblz4-dev gcc-multilib g++-multilib libc6-dev-i386 \
+    libncurses5 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev \
+    libgl1-mesa-dev libxml2-utils xsltproc unzip fontconfig uuid uuid-dev \
+    liblzo2-2 liblzo2-dev lzop git u-boot-tools mtd-utils \
+    android-sdk-libsparse-utils e2fsprogs device-tree-compiler \
+    gdisk m4 make libssl-dev swig libdw-dev dwarves \
+    python3 python3-six python-is-python3 bc cpio tar lz4 rsync ninja-build clang xxd \
+    liblz-dev libgnutls28-dev liblz4-tool libelf-dev efitools cmake \
+    && ln -fs /usr/share/zoneinfo/Europe/Berlin /etc/localtime \
+    && dpkg-reconfigure -f noninteractive tzdata
+
+# Android Toolchain setup
+# If failed to connect to android.googlesource.com, you can refer to the line below.
+#ENV https_proxy=http://username:password@example.com:8080
+
+
+ENV GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH64 arm-gnu-toolchain-12.3.rel1-x86_64-aarch64-none-linux-gnu
+RUN curl --fail --location --retry 3 -o ${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH64}.tar.xz https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu/12.3.rel1/binrel/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH64}.tar.xz \
+ && tar -xvJf ${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH64}.tar.xz -C /opt \
+ && rm -rf ${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH64}.tar.xz
+
+ENV GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH32 arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi
+RUN curl --fail --location --retry 3 -o ${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH32}.tar.xz https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu/12.3.rel1/binrel/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH32}.tar.xz \
+ && tar -xvJf ${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH32}.tar.xz -C /opt \
+ && rm -rf ${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH32}.tar.xz
+
+ENV AARCH32_GCC_CROSS_COMPILE=/opt/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH32}/bin/arm-none-eabi-
+ENV ARMGCC_DIR=/opt/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH32}
+
+# Pins match NXP Android 16.0.0_2.0.0 setup_android_kernel_prebuilts.sh.
+ENV KERNEL_PREBUILTS_PATH=/opt/android-kernel-prebuilts-6.18
+ENV AARCH64_GCC_CROSS_COMPILE=/opt/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH64}/bin/aarch64-none-linux-gnu-
+
+RUN git init "$KERNEL_PREBUILTS_PATH/clang/host/linux-x86" \
+ && cd "$KERNEL_PREBUILTS_PATH/clang/host/linux-x86" \
+ && git remote add origin https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86 \
+ && git fetch --depth 1 origin 0332c9031603e7595541cc1b5325431436c899b8 \
+ && git checkout --detach FETCH_HEAD
+
+RUN git init "$KERNEL_PREBUILTS_PATH/kernel-build-tools" \
+ && cd "$KERNEL_PREBUILTS_PATH/kernel-build-tools" \
+ && git remote add origin https://android.googlesource.com/kernel/prebuilts/build-tools \
+ && git fetch --depth 1 origin 093a912681579b19b6dfae59aeb4b2bb6c23cb65 \
+ && git checkout --detach FETCH_HEAD
+
+RUN git init "$KERNEL_PREBUILTS_PATH/rust" \
+ && cd "$KERNEL_PREBUILTS_PATH/rust" \
+ && git remote add origin https://android.googlesource.com/platform/prebuilts/rust-toolchain/linux-x86 \
+ && git fetch --depth 1 origin 2e1ced0df52b21e449709e398c5326bca047eb8d \
+ && git checkout --detach FETCH_HEAD
+
+RUN git init "$KERNEL_PREBUILTS_PATH/clang-tools" \
+ && cd "$KERNEL_PREBUILTS_PATH/clang-tools" \
+ && git remote add origin https://android.googlesource.com/platform/prebuilts/clang-tools \
+ && git fetch --depth 1 origin 2e73f258cbf4f9ac24f88e17eda389a7f655ebf2 \
+ && git checkout --detach FETCH_HEAD
+
+RUN "$KERNEL_PREBUILTS_PATH/clang/host/linux-x86/clang-r584948b/bin/clang" --version \
+ && "$KERNEL_PREBUILTS_PATH/rust/1.91.1/bin/rustc" --version \
+ && "$KERNEL_PREBUILTS_PATH/kernel-build-tools/linux-x86/bin/pahole" --version \
+ && "$KERNEL_PREBUILTS_PATH/clang-tools/linux-x86/bin/bindgen" --version \
+ && "${AARCH64_GCC_CROSS_COMPILE}gcc" --version
+
+ENV ENV_RUN_SCRIPT="export KERNEL_PREBUILTS_PATH=/opt/android-kernel-prebuilts-6.18; \
+    export AARCH32_GCC_CROSS_COMPILE=/opt/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/bin/arm-none-eabi-; \
+    export AARCH64_GCC_CROSS_COMPILE=/opt/${GCC_CROSS_COMPILE_TOOL_CHAIN_AARCH64}/bin/aarch64-none-linux-gnu-"
+
+# Update to latest
+RUN apt-get update && apt-get dist-upgrade -y
+
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
