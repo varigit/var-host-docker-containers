@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: (GPL-2.0+ OR MIT)
+# Copyright 2026 Variscite Ltd.
+
+FROM ubuntu:26.04
+MAINTAINER Nate Drude "nate.d@variscite.com"
+
+RUN apt-get update
+RUN apt-get install -y sudo openssl apt-utils
+
+WORKDIR /workdir
+
+# Define username and temporary uid and gid
+ENV USER=vari USER_ID=1000 USER_GID=1000
+
+# now creating user, change password to 'ubuntu'
+RUN userdel -r ubuntu && \
+    groupadd --gid "${USER_GID}" "${USER}" && \
+    useradd \
+      --uid ${USER_ID} \
+      --gid ${USER_GID} \
+      --create-home \
+      --shell /bin/bash\
+      --password $(openssl passwd -1 ubuntu)\
+      ${USER}
+
+#setup locale
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -y locales && dpkg-reconfigure locales --frontend noninteractive && locale-gen "en_US.UTF-8" && update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+# Yocto
+RUN apt-get update && apt-get install -y \
+     build-essential chrpath cpio curl debianutils diffstat efitools \
+     file gawk gcc git iputils-ping libacl1 libcrypt-dev locales \
+     python3 python3-git python3-jinja2 python3-pexpect python3-pip \
+     python3-subunit python3-websockets socat texinfo unzip wget xz-utils zstd
+
+RUN curl -fsSL https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+rx /bin/repo
+
+# Update to latest
+RUN apt-get update && apt-get dist-upgrade -y
+
+# make /bin/sh symlink to bash instead of dash:
+RUN echo "dash dash/sh boolean false" | debconf-set-selections
+RUN DEBIAN_FRONTEND=noninteractive dpkg-reconfigure dash
+
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
